@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
@@ -27,7 +28,7 @@ public class PostService {
     private PostRepository postRepository;
 
     @Autowired
-    private UserRepo userRepo; // ✅ Added
+    private UserRepo userRepo;
 
     @Value("${file.upload.dir}")
     private String uploadDir;
@@ -37,15 +38,13 @@ public class PostService {
         post.setTitle(title);
         post.setDescription(description);
 
-        // ✅ Fetch full user from repository
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
         post.setUser(user);
 
-        // ✅ Handle image upload
         if (image != null && !image.isEmpty() && isValidImage(image.getContentType())) {
             try {
-                String imageName = saveFile(image);
+                String imageName = saveMediaFile(image);
                 post.setImagePath(imageName);
             } catch (Exception e) {
                 logger.error("Error saving image file: " + e.getMessage());
@@ -53,10 +52,9 @@ public class PostService {
             }
         }
 
-        // ✅ Handle video upload
         if (video != null && !video.isEmpty() && isValidVideo(video.getContentType())) {
             try {
-                String videoName = saveFile(video);
+                String videoName = saveMediaFile(video);
                 post.setVideoPath(videoName);
             } catch (Exception e) {
                 logger.error("Error saving video file: " + e.getMessage());
@@ -64,25 +62,17 @@ public class PostService {
             }
         }
 
-        // ✅ Save the post
         return postRepository.save(post);
     }
 
-    private String saveFile(MultipartFile file) throws IOException {
+    public String saveMediaFile(MultipartFile file) {
         try {
-            Path dirPath = Paths.get(uploadDir);
-            if (!Files.exists(dirPath)) {
-                Files.createDirectories(dirPath);
-            }
-
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            Path filePath = dirPath.resolve(fileName);
-            file.transferTo(filePath.toFile());
-
+            Path path = Paths.get(uploadDir + File.separator + fileName);
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             return fileName;
         } catch (IOException e) {
-            logger.error("File saving error: " + e.getMessage());
-            throw e;
+            throw new RuntimeException("Failed to save file", e);
         }
     }
 
@@ -108,14 +98,10 @@ public class PostService {
     }
 
     public Post updatePost(Post post) {
-        // Save the updated post, could be using a repository, like:
         return postRepository.save(post);
     }
 
     public List<Post> getPostsByUserId(Long userId) {
-        return postRepository.findByUser_Id(userId); // ✅ correct method name
-
+        return postRepository.findByUser_Id(userId);
     }
-
-
 }

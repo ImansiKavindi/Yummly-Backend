@@ -79,11 +79,14 @@ public class PostController {
         postToUpdate.setDescription(description);
 
         // Handle file updates (optional)
-        if (image != null) {
-            postToUpdate.setImage(image);  // Assuming you want to set the new image
+        if (image != null && !image.isEmpty()) {
+            String imagePath = postService.saveMediaFile(image);  // A new helper method in service
+            postToUpdate.setImagePath(imagePath); // ✅ Save the path
         }
-        if (video != null) {
-            postToUpdate.setVideo(video);  // Assuming you want to set the new video
+
+        if (video != null && !video.isEmpty()) {
+            String videoPath = postService.saveMediaFile(video);
+            postToUpdate.setVideoPath(videoPath);
         }
 
         // Call the service to save the updated post
