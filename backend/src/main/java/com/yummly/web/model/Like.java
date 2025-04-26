@@ -1,12 +1,9 @@
 package com.yummly.web.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
 @Entity
+@Table(name = "likes", uniqueConstraints = {@UniqueConstraint(columnNames = {"post_id", "user_id"})})
 public class Like {
 
     @Id
@@ -14,18 +11,35 @@ public class Like {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    public Like(User user, Post post) {
-        this.user = user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public void setPost(Post post) {
         this.post = post;
     }
 
-    public Like() {
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

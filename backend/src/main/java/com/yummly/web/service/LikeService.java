@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LikeService {
@@ -23,26 +24,31 @@ public class LikeService {
     @Autowired
     private UserRepo userRepo;
 
-    public Like addLike(Long postId, Long userId) {
-        Post post = postRepository.findById(postId).orElse(null);
-        User user = userRepo.findById(userId).orElse(null);
+    public Like toggleLike(Long postId, Long userId) {
+        Optional<Like> existingLike = likeRepository.findByPostIdAndUserId(postId, userId);
 
-        if (post != null && user != null) {
-            Like existingLike = likeRepository.findByPostIdAndUserId(postId, userId);
-            if (existingLike != null) {
-                return null; // Already liked
-            }
-            Like like = new Like(user, post);
-            return likeRepository.save(like);
+        if (existingLike.isPresent()) {
+            likeRepository.delete(existingLike.get());
+            return null;  // Indicates "unliked"
+        } else {
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+            Like like = new Like();
+            like.setPost(post);
+            like.setUser(user);
+            return likeRepository.save(like);  // Indicates "liked"
         }
-        return null;
     }
 
-    public void removeLike(Long postId, Long userId) {
-        Like like = likeRepository.findByPostIdAndUserId(postId, userId);
-        if (like != null) {
-            likeRepository.delete(like);
-        }
+    public boolean hasUserLiked(Long postId, Long userId) {
+        return likeRepository.existsByPostIdAndUserId(postId, userId);
+    }
+
+    public long getLikeCount(Long postId) {
+        return likeRepository.countByPostId(postId);
     }
 
     public List<Like> getLikesByPostId(Long postId) {

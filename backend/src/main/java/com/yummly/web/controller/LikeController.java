@@ -9,31 +9,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/likes")
+@RequestMapping("/api/posts/{postId}/likes")
 public class LikeController {
 
     @Autowired
     private LikeService likeService;
 
-    @PostMapping("/like/{postId}/{userId}")
-    public ResponseEntity<Like> addLike(@PathVariable Long postId, @PathVariable Long userId) {
-        Like like = likeService.addLike(postId, userId);
+    // Toggle like/unlike
+    @PostMapping
+    public ResponseEntity<?> toggleLike(@PathVariable Long postId, @RequestParam Long userId) {
+        Like like = likeService.toggleLike(postId, userId);
         if (like != null) {
-            return ResponseEntity.ok(like);
+            return ResponseEntity.ok("Liked");
+        } else {
+            return ResponseEntity.ok("Unliked");
         }
-        return ResponseEntity.status(400).body(null);  // Already liked
     }
 
-    @DeleteMapping("/like/{postId}/{userId}")
-    public ResponseEntity<Void> removeLike(@PathVariable Long postId, @PathVariable Long userId) {
-        likeService.removeLike(postId, userId);
-        return ResponseEntity.noContent().build();
+    // Check if user liked this post
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> hasUserLiked(@PathVariable Long postId, @RequestParam Long userId) {
+        return ResponseEntity.ok(likeService.hasUserLiked(postId, userId));
     }
 
-    @GetMapping("/post/{postId}")
-    public ResponseEntity<List<Like>> getLikesByPostId(@PathVariable Long postId) {
-        List<Like> likes = likeService.getLikesByPostId(postId);
-        return ResponseEntity.ok(likes);
+    // Get total like count
+    @GetMapping("/count")
+    public ResponseEntity<Long> getLikeCount(@PathVariable Long postId) {
+        return ResponseEntity.ok(likeService.getLikeCount(postId));
+    }
+
+    // View all likes for a post
+    @GetMapping
+    public ResponseEntity<List<Like>> getLikesByPost(@PathVariable Long postId) {
+        return ResponseEntity.ok(likeService.getLikesByPostId(postId));
     }
 }
- 
