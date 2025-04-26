@@ -29,6 +29,7 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+    
 
     // Constructors
     public Post() {}
