@@ -18,7 +18,7 @@ public class CorsConfig {
                 registry.addMapping("/**") // Apply CORS for all endpoints
                         .allowedOrigins("http://localhost:3000") // Allow React frontend
                         .allowedMethods("GET", "POST", "PUT", "DELETE") // Allow specific methods
-                        .allowedHeaders("Authorization", "Content-Type", "X-Requested-With") // Allow specific headers
+                        .allowedHeaders("Authorization", "Content-Type", "X-Requested-With", "userId") // Allow specific headers
                         .allowCredentials(true)
                         .maxAge(3600); // Cache the pre-flight response for 1 hour
 
