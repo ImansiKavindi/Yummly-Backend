@@ -1,6 +1,7 @@
 package com.yummly.web.controller;
 
 import com.yummly.web.dto.CommentDTO;
+import com.yummly.web.dto.CommentRequestDTO;
 import com.yummly.web.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +17,14 @@ public class CommentController {
 
     // Add a comment to a post
     @PostMapping
-    public CommentDTO addComment(@PathVariable Long postId, @RequestParam Long userId, @RequestParam String content) {
-        return commentService.addComment(postId, userId, content);
+    public CommentDTO addComment(
+            @PathVariable Long postId,
+            @RequestParam Long userId,
+            @RequestBody CommentRequestDTO request
+    ) {
+        return commentService.addComment(postId, userId, request.getContent());
     }
+    
 
     // View comments for a post
     @GetMapping
