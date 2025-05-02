@@ -1,16 +1,21 @@
 package com.yummly.web.dto;
 
-import java.time.LocalDateTime;
-
 public class CommentDTO {
 
     private Long id;
     private String content;
-    private Long postId;
+    private String username;
     private Long userId;
-    private LocalDateTime createdAt;
 
-    // Getters and Setters
+    public CommentDTO() {}
+
+    public CommentDTO(Long id, String content, String username, Long userId) {
+        this.id = id;
+        this.content = content;
+        this.username = username;
+        this.userId = userId;
+    }
+
     public Long getId() {
         return id;
     }
@@ -27,12 +32,12 @@ public class CommentDTO {
         this.content = content;
     }
 
-    public Long getPostId() {
-        return postId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setPostId(Long postId) {
-        this.postId = postId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Long getUserId() {
@@ -41,13 +46,5 @@ public class CommentDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 }
