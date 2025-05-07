@@ -1,7 +1,6 @@
 package com.yummly.web.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 public class Comment {
@@ -12,22 +11,17 @@ public class Comment {
 
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    private String username; // ✅ Added
+
+    @ManyToOne
+    @JoinColumn(name = "post_id")
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
-    private LocalDateTime createdAt;
-
-    public Comment() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    // Getters and Setters
-
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -44,6 +38,14 @@ public class Comment {
         this.content = content;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public Post getPost() {
         return post;
     }
@@ -58,13 +60,5 @@ public class Comment {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 }

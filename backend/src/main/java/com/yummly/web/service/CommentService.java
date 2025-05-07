@@ -9,7 +9,6 @@ import com.yummly.web.repo.PostRepository;
 import com.yummly.web.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,9 +25,6 @@ public class CommentService {
     @Autowired
     private UserRepo userRepo;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
     // Add comment to a post
     public CommentDTO addComment(Long postId, Long userId, String content) {
         Post post = postRepository.findById(postId)
@@ -39,18 +35,30 @@ public class CommentService {
 
         Comment comment = new Comment();
         comment.setContent(content);
-        comment.setPost(post);  // Link to the post
-        comment.setUser(user);  // Link to the user
+        comment.setPost(post);
+        comment.setUser(user);
+        comment.setUsername(user.getName());
 
         Comment savedComment = commentRepository.save(comment);
-        return modelMapper.map(savedComment, CommentDTO.class);
+
+        return new CommentDTO(
+                savedComment.getId(),
+                savedComment.getContent(),
+                savedComment.getUsername(),
+                savedComment.getUser().getId()
+        );
     }
 
     // View comments for a post
     public List<CommentDTO> getCommentsForPost(Long postId) {
         List<Comment> comments = commentRepository.findByPostId(postId);
         return comments.stream()
-                .map(comment -> modelMapper.map(comment, CommentDTO.class))
+                .map(comment -> new CommentDTO(
+                        comment.getId(),
+                        comment.getContent(),
+                        comment.getUsername(),
+                        comment.getUser().getId()
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -65,7 +73,12 @@ public class CommentService {
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found with ID: " + commentId));
         comment.setContent(newContent);
         Comment updatedComment = commentRepository.save(comment);
-        return modelMapper.map(updatedComment, CommentDTO.class);
+        return new CommentDTO(
+                updatedComment.getId(),
+                updatedComment.getContent(),
+                updatedComment.getUsername(),
+                updatedComment.getUser().getId()
+        );
     }
 
     // Get comment count for a post

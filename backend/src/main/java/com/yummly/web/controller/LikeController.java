@@ -15,32 +15,32 @@ public class LikeController {
     @Autowired
     private LikeService likeService;
 
-    // Toggle like/unlike
-    @PostMapping
-    public ResponseEntity<?> toggleLike(@PathVariable Long postId, @RequestParam Long userId) {
-        Like like = likeService.toggleLike(postId, userId);
-        if (like != null) {
-            return ResponseEntity.ok("Liked");
-        } else {
-            return ResponseEntity.ok("Unliked");
-        }
+    // Toggle like/unlike by user
+    @PostMapping("/toggle")
+    public ResponseEntity<String> toggleLike(@PathVariable Long postId, @RequestParam Long userId) {
+        boolean isLiked = likeService.toggleLike(postId, userId);
+        return ResponseEntity.ok(isLiked ? "Liked" : "Unliked");
     }
 
-    // Check if user liked this post
+    // Check if a user has liked the post
     @GetMapping("/check")
     public ResponseEntity<Boolean> hasUserLiked(@PathVariable Long postId, @RequestParam Long userId) {
-        return ResponseEntity.ok(likeService.hasUserLiked(postId, userId));
+        boolean hasLiked = likeService.hasUserLiked(postId, userId);
+        return ResponseEntity.ok(hasLiked);
     }
 
-    // Get total like count
+    // Get total like count for a post
     @GetMapping("/count")
     public ResponseEntity<Long> getLikeCount(@PathVariable Long postId) {
-        return ResponseEntity.ok(likeService.getLikeCount(postId));
+        long count = likeService.getLikeCount(postId);
+        return ResponseEntity.ok(count);
     }
 
     // View all likes for a post
     @GetMapping
     public ResponseEntity<List<Like>> getLikesByPost(@PathVariable Long postId) {
-        return ResponseEntity.ok(likeService.getLikesByPostId(postId));
+        List<Like> likes = likeService.getLikesByPostId(postId);
+        return ResponseEntity.ok(likes);
     }
 }
+ 

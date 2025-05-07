@@ -24,12 +24,13 @@ public class LikeService {
     @Autowired
     private UserRepo userRepo;
 
-    public Like toggleLike(Long postId, Long userId) {
+    // Toggle like/unlike by user
+    public boolean toggleLike(Long postId, Long userId) {
         Optional<Like> existingLike = likeRepository.findByPostIdAndUserId(postId, userId);
 
         if (existingLike.isPresent()) {
             likeRepository.delete(existingLike.get());
-            return null;  // Indicates "unliked"
+            return false;  // Unliked
         } else {
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
@@ -39,18 +40,22 @@ public class LikeService {
             Like like = new Like();
             like.setPost(post);
             like.setUser(user);
-            return likeRepository.save(like);  // Indicates "liked"
+            likeRepository.save(like);
+            return true;  // Liked
         }
     }
 
+    // Check if a user has liked a post
     public boolean hasUserLiked(Long postId, Long userId) {
         return likeRepository.existsByPostIdAndUserId(postId, userId);
     }
 
+    // Get total like count for a post
     public long getLikeCount(Long postId) {
         return likeRepository.countByPostId(postId);
     }
 
+    // Get all likes for a post
     public List<Like> getLikesByPostId(Long postId) {
         return likeRepository.findByPostId(postId);
     }
