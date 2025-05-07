@@ -2,6 +2,7 @@ package com.yummly.web.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,10 +46,6 @@ public class Post {
         this.user = user;
     }
 
-    public void setVideo(MultipartFile video) {
-    }
-
-    public void setImage(MultipartFile image) {
-    }
+   
 }
 
