@@ -25,8 +25,11 @@ public class Group {
     
     private String description;
     
-    @Column(nullable = false)
+    @Column(nullable = false, name = "cuisine_type")
     private String cuisineType;
+    
+    @Column(name = "image_url")
+    private String imageUrl;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -96,6 +99,14 @@ public class Group {
     
     public void setCuisineType(String cuisineType) {
         this.cuisineType = cuisineType;
+    }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
     
     public LocalDateTime getCreatedAt() {

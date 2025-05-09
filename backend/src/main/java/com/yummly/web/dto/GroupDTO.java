@@ -14,6 +14,7 @@ public class GroupDTO {
     private String name;
     private String description;
     private String cuisineType;
+    private String imageUrl;
     private LocalDateTime createdAt;
     private Long adminId;
     private String adminName;
@@ -50,6 +51,14 @@ public class GroupDTO {
     
     public void setCuisineType(String cuisineType) {
         this.cuisineType = cuisineType;
+    }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
     
     public LocalDateTime getCreatedAt() {

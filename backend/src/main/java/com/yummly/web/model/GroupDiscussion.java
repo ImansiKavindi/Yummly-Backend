@@ -22,7 +22,7 @@ public class GroupDiscussion {
     @Column(nullable = false)
     private String title;
     
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false, length = 10000)
     private String content;
     
     @Column(name = "created_at")

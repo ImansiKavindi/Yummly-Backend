@@ -40,6 +40,7 @@ public class GroupService {
             dto.setName(group.getName());
             dto.setDescription(group.getDescription());
             dto.setCuisineType(group.getCuisineType());
+            dto.setImageUrl(group.getImageUrl());
             dto.setCreatedAt(group.getCreatedAt());
             dto.setAdminId(group.getAdmin().getId());
             dto.setAdminName(group.getAdmin().getName());
@@ -96,6 +97,7 @@ public class GroupService {
             group.setName(groupDTO.getName());
             group.setDescription(groupDTO.getDescription());
             group.setCuisineType(groupDTO.getCuisineType());
+            group.setImageUrl(groupDTO.getImageUrl());
             group.setAdmin(admin);
             
             Group savedGroup = groupRepo.save(group);
@@ -131,6 +133,7 @@ public class GroupService {
                 group.setName(groupDTO.getName());
                 group.setDescription(groupDTO.getDescription());
                 group.setCuisineType(groupDTO.getCuisineType());
+                group.setImageUrl(groupDTO.getImageUrl());
                 
                 Group updatedGroup = groupRepo.save(group);
                 return Optional.of(convertToDTO(updatedGroup));

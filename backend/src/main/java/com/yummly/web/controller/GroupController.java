@@ -1,7 +1,9 @@
 package com.yummly.web.controller;
 
 import com.yummly.web.dto.GroupDTO;
+import com.yummly.web.dto.GroupMessageDTO;
 import com.yummly.web.model.User;
+import com.yummly.web.service.GroupMessageService;
 import com.yummly.web.service.GroupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,9 @@ public class GroupController {
 
     @Autowired
     private GroupService groupService;
+    
+    @Autowired
+    private GroupMessageService messageService;
     
     // Get all groups
     @GetMapping
@@ -84,13 +89,35 @@ public class GroupController {
     @DeleteMapping("/{groupId}")
     public ResponseEntity<Void> deleteGroup(
             @PathVariable Long groupId,
-            @RequestHeader(value = "userid", defaultValue = "1") Long userId) {
+            @RequestParam(required = false) Long userId,
+            @RequestHeader(value = "userid", defaultValue = "1") Long headerUserId) {
         
         try {
-            boolean deleted = groupService.deleteGroup(groupId, userId);
+            // Use userId from query parameter if provided, otherwise from header
+            Long effectiveUserId = userId != null ? userId : headerUserId;
+            logger.info("Deleting group {} requested by user {}", groupId, effectiveUserId);
+            
+            boolean deleted = groupService.deleteGroup(groupId, effectiveUserId);
             return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
         } catch (Exception e) {
             logger.error("Error in deleteGroup: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    // Alternative endpoint for deleting groups using POST
+    @PostMapping("/{groupId}/delete")
+    public ResponseEntity<Void> deleteGroupViaPost(
+            @PathVariable Long groupId,
+            @RequestBody Map<String, Long> request,
+            @RequestHeader(value = "userid", defaultValue = "1") Long userId) {
+        
+        try {
+            logger.info("Deleting group {} via POST endpoint by user {}", groupId, userId);
+            boolean deleted = groupService.deleteGroup(groupId, userId);
+            return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error in deleteGroupViaPost: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -275,6 +302,95 @@ public class GroupController {
             return ResponseEntity.ok(groupService.isAdmin(groupId, userId));
         } catch (Exception e) {
             logger.error("Error in isAdmin: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    // Remove member (for moderators and admin)
+    @DeleteMapping("/{groupId}/members/{userId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable Long groupId,
+            @PathVariable Long userId,
+            @RequestHeader(value = "userid", defaultValue = "1") Long requesterId) {
+        
+        try {
+            // Check if requester is admin or moderator
+            if (!groupService.isAdmin(groupId, requesterId) && !groupService.isModerator(groupId, requesterId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
+            // Admin cannot be removed
+            if (groupService.isAdmin(groupId, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
+            boolean removed = groupService.leaveGroup(groupId, userId);
+            return removed ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            logger.error("Error in removeMember: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    // Get messages for a group
+    @GetMapping("/{groupId}/messages")
+    public ResponseEntity<List<GroupMessageDTO>> getGroupMessages(
+            @PathVariable Long groupId,
+            @RequestHeader(value = "userid", defaultValue = "1") Long userId) {
+        
+        try {
+            // Check if user is a member
+            if (!groupService.isMember(groupId, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
+            List<GroupMessageDTO> messages = messageService.getGroupMessages(groupId);
+            return ResponseEntity.ok(messages);
+        } catch (Exception e) {
+            logger.error("Error in getGroupMessages: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    // Create a new message
+    @PostMapping("/{groupId}/messages")
+    public ResponseEntity<GroupMessageDTO> createMessage(
+            @PathVariable Long groupId,
+            @RequestBody Map<String, String> request,
+            @RequestHeader(value = "userid", defaultValue = "1") Long userId) {
+        
+        try {
+            String content = request.get("content");
+            if (content == null || content.trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            GroupMessageDTO message = messageService.createMessage(groupId, content, userId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(message);
+        } catch (RuntimeException e) {
+            logger.error("Error in createMessage: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            logger.error("Error in createMessage: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    // Delete a message
+    @DeleteMapping("/{groupId}/messages/{messageId}")
+    public ResponseEntity<Void> deleteMessage(
+            @PathVariable Long groupId,
+            @PathVariable Long messageId,
+            @RequestHeader(value = "userid", defaultValue = "1") Long userId) {
+        
+        try {
+            boolean deleted = messageService.deleteMessage(messageId, userId);
+            return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        } catch (RuntimeException e) {
+            logger.error("Error in deleteMessage: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            logger.error("Error in deleteMessage: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

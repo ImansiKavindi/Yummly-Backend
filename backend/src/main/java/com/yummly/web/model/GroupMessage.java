@@ -8,28 +8,28 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "group_comments")
+@Table(name = "group_messages")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupComment {
+public class GroupMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false, length = 10000)
+    @Column(nullable = false, length = 1000)
     private String content;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
     
     @ManyToOne
-    @JoinColumn(name = "discussion_id", nullable = false)
-    private GroupDiscussion discussion;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
     
     @PrePersist
     protected void onCreate() {
@@ -61,19 +61,19 @@ public class GroupComment {
         this.createdAt = createdAt;
     }
     
+    public Group getGroup() {
+        return group;
+    }
+    
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+    
     public User getUser() {
         return user;
     }
     
     public void setUser(User user) {
         this.user = user;
-    }
-    
-    public GroupDiscussion getDiscussion() {
-        return discussion;
-    }
-    
-    public void setDiscussion(GroupDiscussion discussion) {
-        this.discussion = discussion;
     }
 } 
