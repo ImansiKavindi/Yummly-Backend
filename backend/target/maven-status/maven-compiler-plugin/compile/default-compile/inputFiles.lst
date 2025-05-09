@@ -1,32 +1,3 @@
-<<<<<<< Updated upstream
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\config\WebConfig.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\controller\CommentController.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\controller\LikeController.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\controller\PostController.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\controller\UserController.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\CorsConfig.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\CommentDTO.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\CommentRequestDTO.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\LikeDTO.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\LoginRequest.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\PostDTO.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\UserDTO.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\exception\FileStorageException.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\model\Comment.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\model\Like.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\model\Post.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\model\User.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\ModelMapperConfig.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\CommentRepository.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\LikeRepository.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\PostRepository.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\UserRepo.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\service\CommentService.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\service\LikeService.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\service\PostService.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\service\UserService.java
-C:\Projects\Yummly\Yummly-Backend\backend\src\main\java\com\yummly\web\WebApplication.java
-=======
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\config\RequestLoggingFilter.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\config\WebConfig.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\controller\CommentController.java
@@ -38,6 +9,7 @@ C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\w
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\CommentDTO.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\CommentRequestDTO.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\GroupDTO.java
+C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\GroupMessageDTO.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\LikeDTO.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\LoginRequest.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\dto\PostDTO.java
@@ -49,6 +21,7 @@ C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\w
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\model\GroupComment.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\model\GroupDiscussion.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\model\GroupMembership.java
+C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\model\GroupMessage.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\model\Like.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\model\Post.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\model\User.java
@@ -56,15 +29,16 @@ C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\w
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\CommentRepository.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\GroupDiscussionRepo.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\GroupMembershipRepo.java
+C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\GroupMessageRepo.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\GroupRepo.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\LikeRepository.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\PostRepository.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\repo\UserRepo.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\service\CommentService.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\service\GroupDiscussionService.java
+C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\service\GroupMessageService.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\service\GroupService.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\service\LikeService.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\service\PostService.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\service\UserService.java
 C:\Users\USER\OneDrive\Desktop\Yummly-Backend\backend\src\main\java\com\yummly\web\WebApplication.java
->>>>>>> Stashed changes
