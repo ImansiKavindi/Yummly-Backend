@@ -28,10 +28,10 @@ public class PostController {
         Post createdPost = postService.createPost(title, description, userId, image, video);
 
         if (createdPost == null) {
-            return ResponseEntity.status(500).body(null);  // Return error if the post couldn't be created
+            return ResponseEntity.status(500).body(null);  
         }
 
-        return ResponseEntity.ok(createdPost);  // Return the created post if everything is fine
+        return ResponseEntity.ok(createdPost); 
     }
 
     @GetMapping("/")
@@ -41,7 +41,6 @@ public class PostController {
             List<PostDTO> postDTOs = posts.stream().map(PostDTO::new).toList();
             return ResponseEntity.ok(postDTOs);
         } catch (Exception e) {
-            e.printStackTrace(); // Logs the error in terminal
             return ResponseEntity.status(500).body(null);
         }
     }
@@ -110,5 +109,5 @@ public class PostController {
     }
 
 
-    // Other CRUD endpoints and additional methods
+    
 }
