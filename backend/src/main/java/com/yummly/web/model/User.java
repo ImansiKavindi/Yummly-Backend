@@ -18,10 +18,9 @@ public class User {
     @JsonIgnore
     private List<Post> posts;
 
-    // Default constructor
     public User() {}
 
-    // All-args constructor
+  
     public User(long id, String name, String email, String password, List<Post> posts) {
         this.id = id;
         this.name = name;
