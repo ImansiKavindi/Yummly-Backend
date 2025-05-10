@@ -15,14 +15,14 @@ public class LikeController {
     @Autowired
     private LikeService likeService;
 
-    // Toggle like/unlike by user
+   
     @PostMapping("/toggle")
     public ResponseEntity<String> toggleLike(@PathVariable Long postId, @RequestParam Long userId) {
         boolean isLiked = likeService.toggleLike(postId, userId);
         return ResponseEntity.ok(isLiked ? "Liked" : "Unliked");
     }
 
-    // Check if a user has liked the post
+    
     @GetMapping("/check")
     public ResponseEntity<Boolean> hasUserLiked(@PathVariable Long postId, @RequestParam Long userId) {
         boolean hasLiked = likeService.hasUserLiked(postId, userId);
