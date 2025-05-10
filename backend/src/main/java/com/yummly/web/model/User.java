@@ -30,7 +30,7 @@ public class User {
         this.posts = posts;
     }
 
-    // Getter and Setter methods for id
+   
     public long getId() {
         return id;
     }
