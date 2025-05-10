@@ -15,7 +15,7 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // Apply CORS for all endpoints
+                registry.addMapping("/**") 
                 .allowedOrigins(
                     "http://localhost:3000", 
                     "http://localhost:3001", 
