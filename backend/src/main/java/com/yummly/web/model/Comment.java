@@ -11,7 +11,7 @@ public class Comment {
 
     private String content;
 
-    private String username; // ✅ Added
+    private String username; 
 
     @ManyToOne
     @JoinColumn(name = "post_id")
