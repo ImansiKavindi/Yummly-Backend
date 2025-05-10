@@ -2,7 +2,6 @@ package com.yummly.web.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Table(name = "posts")
 public class Post {
 
-    // Getters and Setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,14 +28,17 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-    
 
-    // Constructors
+    @Transient
+    private MultipartFile imageFile;
+
+    @Transient
+    private MultipartFile videoFile;
+
     public Post() {}
 
-    // Method to get the username from the associated User object
     public String getUserName() {
-        return user != null ? user.getName() : "Unknown User";  // Returns the user's name or "Unknown User" if null
+        return user != null ? user.getName() : "Unknown User";
     }
 
     public void setUserId(Long userId) {
@@ -45,7 +46,4 @@ public class Post {
         user.setId(userId);
         this.user = user;
     }
-
-   
 }
-
