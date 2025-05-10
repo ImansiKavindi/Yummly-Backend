@@ -26,25 +26,25 @@ public class CommentController {
     }
     
 
-    // View comments for a post
+    
     @GetMapping
     public List<CommentDTO> getCommentsForPost(@PathVariable Long postId) {
         return commentService.getCommentsForPost(postId);
     }
 
-    // Delete a comment
+    
     @DeleteMapping("/{commentId}")
     public void deleteComment(@PathVariable Long commentId) {
         commentService.deleteComment(commentId);
     }
 
-    // Update a comment
+   
     @PutMapping("/{commentId}")
     public CommentDTO updateComment(@PathVariable Long commentId, @RequestParam String newContent) {
         return commentService.updateComment(commentId, newContent);
     }
 
-    // Get comment count for a post
+   
     @GetMapping("/count")
     public long getCommentCountForPost(@PathVariable Long postId) {
         return commentService.getCommentCountForPost(postId);
