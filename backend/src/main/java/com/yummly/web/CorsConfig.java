@@ -23,7 +23,8 @@ public class CorsConfig {
                     "http://localhost:3003", 
                     "http://localhost:3004", 
                     "http://localhost:3005", 
-                    "http://localhost:3006"
+                    "http://localhost:3006",
+                    "http://localhost:3007"
                 ) 
                         .allowedMethods("GET", "POST", "PUT", "DELETE") // Allow specific methods
                         .allowedHeaders("Authorization", "Content-Type", "X-Requested-With") // Allow specific headers
