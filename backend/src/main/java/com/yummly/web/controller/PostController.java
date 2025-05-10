@@ -80,8 +80,8 @@ public class PostController {
 
         // Handle file updates (optional)
         if (image != null && !image.isEmpty()) {
-            String imagePath = postService.saveMediaFile(image);  // A new helper method in service
-            postToUpdate.setImagePath(imagePath); // ✅ Save the path
+            String imagePath = postService.saveMediaFile(image);  
+            postToUpdate.setImagePath(imagePath); // ✅ 
         }
 
         if (video != null && !video.isEmpty()) {
@@ -89,10 +89,10 @@ public class PostController {
             postToUpdate.setVideoPath(videoPath);
         }
 
-        // Call the service to save the updated post
+       
         Post updatedPost = postService.updatePost(postToUpdate);
 
-        return ResponseEntity.ok(updatedPost);  // Return the updated post
+        return ResponseEntity.ok(updatedPost);  
     }
 
     @DeleteMapping("/{id}")
