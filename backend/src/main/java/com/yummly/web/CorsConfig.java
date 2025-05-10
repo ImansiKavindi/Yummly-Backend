@@ -26,7 +26,7 @@ public class CorsConfig {
                     "http://localhost:3006",
                     "http://localhost:3007"
                 ) 
-                        .allowedMethods("GET", "POST", "PUT", "DELETE") // Allow specific methods
+                        .allowedMethods("GET", "POST", "PUT", "DELETE") 
                         .allowedHeaders("Authorization", "Content-Type", "X-Requested-With")
                         .allowCredentials(true)
                         .maxAge(3600); 
