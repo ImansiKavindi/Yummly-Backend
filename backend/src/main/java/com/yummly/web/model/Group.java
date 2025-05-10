@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "community_groups")
+@Table(name = "groups")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,12 +31,12 @@ public class Group {
     @Column(name = "image_url")
     private String imageUrl;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
-    @ManyToOne
-    @JoinColumn(name = "admin_id", nullable = false)
-    private User admin;
     
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -52,8 +52,8 @@ public class Group {
     }
     
     // Helper methods
-    public boolean isAdmin(User user) {
-        return admin.getId() == user.getId();
+    public boolean isCreator(User user) {
+        return createdBy.getId() == user.getId();
     }
     
     public void addMember(User user) {
@@ -117,12 +117,12 @@ public class Group {
         this.createdAt = createdAt;
     }
     
-    public User getAdmin() {
-        return admin;
+    public User getCreatedBy() {
+        return createdBy;
     }
     
-    public void setAdmin(User admin) {
-        this.admin = admin;
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
     }
     
     public List<GroupMembership> getMemberships() {

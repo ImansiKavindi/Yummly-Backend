@@ -1,4 +1,8 @@
 {
+  "name": "yummly-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:8093",
   "dependencies": {
     "cors": "^2.8.5"
   }

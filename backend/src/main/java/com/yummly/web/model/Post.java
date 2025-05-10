@@ -1,12 +1,10 @@
 package com.yummly.web.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-@Setter
-@Getter
+@Data
 @Entity
 @Table(name = "posts")
 public class Post {

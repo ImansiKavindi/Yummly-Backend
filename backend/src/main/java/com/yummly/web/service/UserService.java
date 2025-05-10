@@ -50,9 +50,14 @@ public class UserService {
         return userRepo.findByEmail(email);
     }
 
-
-
-
-
-
+    public User login(String email, String password) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (!user.getPassword().equals(password)) {
+            throw new RuntimeException("Invalid password");
+        }
+        
+        return user;
+    }
 }

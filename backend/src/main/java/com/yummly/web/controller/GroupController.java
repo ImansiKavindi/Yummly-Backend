@@ -175,34 +175,40 @@ public class GroupController {
     }
     
     // Add moderator
-    @PostMapping("/{groupId}/moderators/{userId}")
-    public ResponseEntity<Void> addModerator(
+    @PostMapping("/{groupId}/moderator/{userId}")
+    public ResponseEntity<?> addModerator(
             @PathVariable Long groupId,
             @PathVariable Long userId,
-            @RequestHeader(value = "userid", defaultValue = "1") Long adminId) {
-        
+            @RequestParam Long creatorId) {
         try {
-            boolean added = groupService.addModerator(groupId, adminId, userId);
-            return added ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
-        } catch (RuntimeException e) {
-            logger.error("Error in addModerator: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            if (!groupService.isCreator(groupId, creatorId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Only group creator can add moderators");
+            }
+            boolean success = groupService.addModerator(groupId, creatorId, userId);
+            return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error adding moderator to group {}: {}", groupId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
     
     // Remove moderator
-    @DeleteMapping("/{groupId}/moderators/{userId}")
-    public ResponseEntity<Void> removeModerator(
+    @DeleteMapping("/{groupId}/moderator/{userId}")
+    public ResponseEntity<?> removeModerator(
             @PathVariable Long groupId,
             @PathVariable Long userId,
-            @RequestHeader(value = "userid", defaultValue = "1") Long adminId) {
-        
+            @RequestParam Long creatorId) {
         try {
-            boolean removed = groupService.removeModerator(groupId, adminId, userId);
-            return removed ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
-        } catch (RuntimeException e) {
-            logger.error("Error in removeModerator: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            if (!groupService.isCreator(groupId, creatorId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Only group creator can remove moderators");
+            }
+            boolean success = groupService.removeModerator(groupId, creatorId, userId);
+            return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error removing moderator from group {}: {}", groupId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
     
@@ -211,15 +217,15 @@ public class GroupController {
     public ResponseEntity<Void> transferOwnership(
             @PathVariable Long groupId,
             @RequestBody Map<String, Long> request,
-            @RequestHeader(value = "userid", defaultValue = "1") Long adminId) {
+            @RequestHeader(value = "userid", defaultValue = "1") Long creatorId) {
         
         try {
-            Long newAdminId = request.get("newAdminId");
-            if (newAdminId == null) {
+            Long newCreatorId = request.get("newCreatorId");
+            if (newCreatorId == null) {
                 return ResponseEntity.badRequest().build();
             }
             
-            boolean transferred = groupService.transferOwnership(groupId, adminId, newAdminId);
+            boolean transferred = groupService.transferOwnership(groupId, creatorId, newCreatorId);
             return transferred ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
         } catch (RuntimeException e) {
             logger.error("Error in transferOwnership: {}", e.getMessage(), e);
@@ -251,15 +257,14 @@ public class GroupController {
         }
     }
     
-    // Get groups by admin
-    @GetMapping("/admin/{userId}")
-    public ResponseEntity<List<GroupDTO>> getGroupsByAdmin(
-            @PathVariable Long userId,
-            @RequestHeader(value = "userid", defaultValue = "1") Long requestUserId) {
+    // Get groups by creator
+    @GetMapping("/creator/{userId}")
+    public ResponseEntity<List<GroupDTO>> getGroupsByCreator(@PathVariable Long userId) {
         try {
-            return ResponseEntity.ok(groupService.getGroupsByAdmin(userId));
+            List<GroupDTO> groups = groupService.getGroupsByCreator(userId);
+            return ResponseEntity.ok(groups);
         } catch (Exception e) {
-            logger.error("Error in getGroupsByAdmin: {}", e.getMessage(), e);
+            logger.error("Error getting groups by creator", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -292,42 +297,40 @@ public class GroupController {
         }
     }
     
-    // Check if user is admin
-    @GetMapping("/{groupId}/is-admin")
-    public ResponseEntity<Boolean> isAdmin(
-            @PathVariable Long groupId,
-            @RequestHeader(value = "userid", defaultValue = "1") Long userId) {
-        
+    // Check if user is creator
+    @GetMapping("/{groupId}/is-creator")
+    public ResponseEntity<Boolean> isCreator(@PathVariable Long groupId, @RequestParam Long userId) {
         try {
-            return ResponseEntity.ok(groupService.isAdmin(groupId, userId));
+            boolean isCreator = groupService.isCreator(groupId, userId);
+            return ResponseEntity.ok(isCreator);
         } catch (Exception e) {
-            logger.error("Error in isAdmin: {}", e.getMessage(), e);
+            logger.error("Error checking if user is creator", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
     
-    // Remove member (for moderators and admin)
+    // Remove member
     @DeleteMapping("/{groupId}/members/{userId}")
     public ResponseEntity<Void> removeMember(
             @PathVariable Long groupId,
             @PathVariable Long userId,
             @RequestHeader(value = "userid", defaultValue = "1") Long requesterId) {
-        
         try {
-            // Check if requester is admin or moderator
-            if (!groupService.isAdmin(groupId, requesterId) && !groupService.isModerator(groupId, requesterId)) {
+            // Check if requester is creator or moderator
+            if (!groupService.isCreator(groupId, requesterId) && 
+                !groupService.isModerator(groupId, requesterId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
             
-            // Admin cannot be removed
-            if (groupService.isAdmin(groupId, userId)) {
+            // Creator cannot be removed
+            if (groupService.isCreator(groupId, userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
             
-            boolean removed = groupService.leaveGroup(groupId, userId);
-            return removed ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+            boolean removed = groupService.removeMember(groupId, userId);
+            return removed ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
         } catch (Exception e) {
-            logger.error("Error in removeMember: {}", e.getMessage(), e);
+            logger.error("Error removing member {} from group {}: {}", userId, groupId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -339,15 +342,12 @@ public class GroupController {
             @RequestHeader(value = "userid", defaultValue = "1") Long userId) {
         
         try {
-            // Check if user is a member
             if (!groupService.isMember(groupId, userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-            
-            List<GroupMessageDTO> messages = messageService.getGroupMessages(groupId);
-            return ResponseEntity.ok(messages);
+            return ResponseEntity.ok(messageService.getGroupMessages(groupId));
         } catch (Exception e) {
-            logger.error("Error in getGroupMessages: {}", e.getMessage(), e);
+            logger.error("Error getting messages for group {}: {}", groupId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -365,13 +365,14 @@ public class GroupController {
                 return ResponseEntity.badRequest().build();
             }
             
+            if (!groupService.isMember(groupId, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
             GroupMessageDTO message = messageService.createMessage(groupId, content, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(message);
-        } catch (RuntimeException e) {
-            logger.error("Error in createMessage: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (Exception e) {
-            logger.error("Error in createMessage: {}", e.getMessage(), e);
+            logger.error("Error creating message in group {}: {}", groupId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -384,13 +385,14 @@ public class GroupController {
             @RequestHeader(value = "userid", defaultValue = "1") Long userId) {
         
         try {
+            if (!groupService.isMember(groupId, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
             boolean deleted = messageService.deleteMessage(messageId, userId);
-            return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
-        } catch (RuntimeException e) {
-            logger.error("Error in deleteMessage: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
         } catch (Exception e) {
-            logger.error("Error in deleteMessage: {}", e.getMessage(), e);
+            logger.error("Error deleting message {} from group {}: {}", messageId, groupId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

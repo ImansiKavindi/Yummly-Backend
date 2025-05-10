@@ -16,8 +16,8 @@ public class GroupDTO {
     private String cuisineType;
     private String imageUrl;
     private LocalDateTime createdAt;
-    private Long adminId;
-    private String adminName;
+    private Long creatorId;
+    private String creatorName;
     private int memberCount;
     
     // Explicit getters and setters for compilation
@@ -69,20 +69,20 @@ public class GroupDTO {
         this.createdAt = createdAt;
     }
     
-    public Long getAdminId() {
-        return adminId;
+    public Long getCreatorId() {
+        return creatorId;
     }
     
-    public void setAdminId(Long adminId) {
-        this.adminId = adminId;
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
     }
     
-    public String getAdminName() {
-        return adminName;
+    public String getCreatorName() {
+        return creatorName;
     }
     
-    public void setAdminName(String adminName) {
-        this.adminName = adminName;
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
     }
     
     public int getMemberCount() {

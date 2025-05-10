@@ -124,12 +124,12 @@ public class GroupDiscussionService {
                 GroupDiscussion discussion = discussionOpt.get();
                 Group group = discussion.getGroup();
                 
-                // Check if user is the author or an admin/moderator
+                // Check if user is the author or a creator/moderator
                 boolean isAuthor = discussion.getUser().getId() == userId;
-                boolean isAdmin = groupService.isAdmin(group.getId(), userId);
+                boolean isCreator = groupService.isCreator(group.getId(), userId);
                 boolean isModerator = groupService.isModerator(group.getId(), userId);
                 
-                if (isAuthor || isAdmin || isModerator) {
+                if (isAuthor || isCreator || isModerator) {
                     discussionRepo.delete(discussion);
                     return true;
                 } else {

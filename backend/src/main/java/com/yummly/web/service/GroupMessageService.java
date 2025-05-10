@@ -97,10 +97,10 @@ public class GroupMessageService {
                 GroupMessage message = messageOpt.get();
                 Group group = message.getGroup();
                 
-                // Check if user is the message author, a moderator, or the group admin
+                // Check if user is the message author, a moderator, or the group creator
                 if (userId.equals(message.getUser().getId()) || 
                     groupService.isModerator(group.getId(), userId) || 
-                    groupService.isAdmin(group.getId(), userId)) {
+                    groupService.isCreator(group.getId(), userId)) {
                     
                     messageRepo.delete(message);
                     return true;

@@ -42,8 +42,8 @@ public class GroupService {
             dto.setCuisineType(group.getCuisineType());
             dto.setImageUrl(group.getImageUrl());
             dto.setCreatedAt(group.getCreatedAt());
-            dto.setAdminId(group.getAdmin().getId());
-            dto.setAdminName(group.getAdmin().getName());
+            dto.setCreatorId(group.getCreatedBy().getId());
+            dto.setCreatorName(group.getCreatedBy().getName());
             dto.setMemberCount(membershipRepo.countByGroup(group));
             return dto;
         } catch (Exception e) {
@@ -78,19 +78,19 @@ public class GroupService {
     @Transactional
     public GroupDTO createGroup(GroupDTO groupDTO, Long userId) {
         try {
-            User admin;
+            User creator;
             try {
-                admin = userRepo.findById(userId)
+                creator = userRepo.findById(userId)
                         .orElseThrow(() -> new RuntimeException("User not found"));
             } catch (Exception e) {
                 // Create a default user if not found
                 logger.info("Creating default user with ID: {}", userId);
-                admin = new User();
-                admin.setId(userId);
-                admin.setName("Default User");
-                admin.setEmail("default@example.com");
-                admin.setPassword("password");
-                admin = userRepo.save(admin);
+                creator = new User();
+                creator.setId(userId);
+                creator.setName("Default User");
+                creator.setEmail("default@example.com");
+                creator.setPassword("password");
+                creator = userRepo.save(creator);
             }
             
             Group group = new Group();
@@ -98,13 +98,13 @@ public class GroupService {
             group.setDescription(groupDTO.getDescription());
             group.setCuisineType(groupDTO.getCuisineType());
             group.setImageUrl(groupDTO.getImageUrl());
-            group.setAdmin(admin);
+            group.setCreatedBy(creator);
             
             Group savedGroup = groupRepo.save(group);
             
-            // Add admin as the first member
+            // Add creator as the first member
             GroupMembership membership = new GroupMembership();
-            membership.setUser(admin);
+            membership.setUser(creator);
             membership.setGroup(savedGroup);
             membership.setModerator(true);
             membershipRepo.save(membership);
@@ -125,9 +125,9 @@ public class GroupService {
             if (groupOpt.isPresent()) {
                 Group group = groupOpt.get();
                 
-                // Check if user is admin
-                if (group.getAdmin().getId() != userId) {
-                    throw new RuntimeException("Only group admin can update group details");
+                // Check if user is creator
+                if (group.getCreatedBy().getId() != userId) {
+                    throw new RuntimeException("Only group creator can update group details");
                 }
                 
                 group.setName(groupDTO.getName());
@@ -155,9 +155,9 @@ public class GroupService {
             if (groupOpt.isPresent()) {
                 Group group = groupOpt.get();
                 
-                // Check if user is admin
-                if (group.getAdmin().getId() != userId) {
-                    throw new RuntimeException("Only group admin can delete the group");
+                // Check if user is creator
+                if (group.getCreatedBy().getId() != userId) {
+                    throw new RuntimeException("Only group creator can delete the group");
                 }
                 
                 groupRepo.delete(group);
@@ -208,9 +208,9 @@ public class GroupService {
             User user = userRepo.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             
-            // Admin cannot leave group
-            if (group.getAdmin().getId() == userId) {
-                throw new RuntimeException("Group admin cannot leave the group. Transfer admin role first.");
+            // Creator cannot leave group
+            if (group.getCreatedBy().getId() == userId) {
+                throw new RuntimeException("Group creator cannot leave the group. Transfer ownership first.");
             }
             
             // Check if user is a member
@@ -258,19 +258,20 @@ public class GroupService {
     
     // Add moderator
     @Transactional
-    public boolean addModerator(Long groupId, Long adminId, Long userId) {
+    public boolean addModerator(Long groupId, Long creatorId, Long userId) {
         try {
             Group group = groupRepo.findById(groupId)
                     .orElseThrow(() -> new RuntimeException("Group not found"));
             
-            // Check if requester is admin
-            if (group.getAdmin().getId() != adminId) {
-                throw new RuntimeException("Only group admin can add moderators");
+            // Check if user is creator
+            if (group.getCreatedBy().getId() != creatorId) {
+                throw new RuntimeException("Only group creator can add moderators");
             }
             
-            Optional<GroupMembership> membershipOpt = membershipRepo.findByGroupAndUser(
-                    group, userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             
+            Optional<GroupMembership> membershipOpt = membershipRepo.findByGroupAndUser(group, user);
             if (membershipOpt.isPresent()) {
                 GroupMembership membership = membershipOpt.get();
                 membership.setModerator(true);
@@ -287,19 +288,20 @@ public class GroupService {
     
     // Remove moderator
     @Transactional
-    public boolean removeModerator(Long groupId, Long adminId, Long userId) {
+    public boolean removeModerator(Long groupId, Long creatorId, Long userId) {
         try {
             Group group = groupRepo.findById(groupId)
                     .orElseThrow(() -> new RuntimeException("Group not found"));
             
-            // Check if requester is admin
-            if (group.getAdmin().getId() != adminId) {
-                throw new RuntimeException("Only group admin can remove moderators");
+            // Check if user is creator
+            if (group.getCreatedBy().getId() != creatorId) {
+                throw new RuntimeException("Only group creator can remove moderators");
             }
             
-            Optional<GroupMembership> membershipOpt = membershipRepo.findByGroupAndUser(
-                    group, userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             
+            Optional<GroupMembership> membershipOpt = membershipRepo.findByGroupAndUser(group, user);
             if (membershipOpt.isPresent()) {
                 GroupMembership membership = membershipOpt.get();
                 membership.setModerator(false);
@@ -314,53 +316,40 @@ public class GroupService {
         }
     }
     
-    // Transfer group ownership
+    // Transfer ownership
     @Transactional
-    public boolean transferOwnership(Long groupId, Long currentAdminId, Long newAdminId) {
+    public boolean transferOwnership(Long groupId, Long currentCreatorId, Long newCreatorId) {
         try {
             Group group = groupRepo.findById(groupId)
                     .orElseThrow(() -> new RuntimeException("Group not found"));
             
-            // Check if requester is current admin
-            if (group.getAdmin().getId() != currentAdminId) {
-                throw new RuntimeException("Only current admin can transfer ownership");
+            // Check if user is current creator
+            if (group.getCreatedBy().getId() != currentCreatorId) {
+                throw new RuntimeException("Only current group creator can transfer ownership");
             }
             
-            User newAdmin = userRepo.findById(newAdminId)
-                    .orElseThrow(() -> new RuntimeException("New admin user not found"));
+            User newCreator = userRepo.findById(newCreatorId)
+                    .orElseThrow(() -> new RuntimeException("New creator not found"));
             
-            // Check if new admin is a member
-            if (!membershipRepo.existsByGroupAndUser(group, newAdmin)) {
-                throw new RuntimeException("New admin must be a group member");
+            // Check if new creator is a member
+            if (!membershipRepo.existsByGroupAndUser(group, newCreator)) {
+                throw new RuntimeException("New creator must be a member of the group");
             }
             
-            // Update admin
-            group.setAdmin(newAdmin);
+            group.setCreatedBy(newCreator);
             groupRepo.save(group);
-            
-            // Make sure new admin is a moderator
-            Optional<GroupMembership> membershipOpt = membershipRepo.findByGroupAndUser(group, newAdmin);
-            if (membershipOpt.isPresent()) {
-                GroupMembership membership = membershipOpt.get();
-                membership.setModerator(true);
-                membershipRepo.save(membership);
-            }
             
             return true;
         } catch (Exception e) {
-            logger.error("Error transferring ownership of group {}: {}", groupId, e.getMessage(), e);
+            logger.error("Error transferring group ownership {}: {}", groupId, e.getMessage(), e);
             throw e;
         }
     }
     
-    // Search groups by name or cuisine type
+    // Search groups
     public List<GroupDTO> searchGroups(String query) {
         try {
-            List<Group> groups = groupRepo.findByNameContainingIgnoreCase(query);
-            groups.addAll(groupRepo.findByCuisineType(query));
-            
-            return groups.stream()
-                    .distinct()
+            return groupRepo.findByNameContainingOrDescriptionContaining(query, query).stream()
                     .map(this::convertToDTO)
                     .collect(Collectors.toList());
         } catch (Exception e) {
@@ -372,39 +361,30 @@ public class GroupService {
     // Get groups by member
     public List<GroupDTO> getGroupsByMember(Long userId) {
         try {
-            User user;
-            try {
-                user = userRepo.findById(userId)
-                        .orElseThrow(() -> new RuntimeException("User not found"));
-                return groupRepo.findGroupsByMember(user).stream()
-                        .map(this::convertToDTO)
-                        .collect(Collectors.toList());
-            } catch (Exception e) {
-                logger.warn("User {} not found for getGroupsByMember, returning empty list", userId);
-                return new ArrayList<>();
-            }
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            return membershipRepo.findByUser(user).stream()
+                    .map(GroupMembership::getGroup)
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            logger.error("Error getting groups by member {}: {}", userId, e.getMessage(), e);
+            logger.error("Error getting groups for member {}: {}", userId, e.getMessage(), e);
             return new ArrayList<>();
         }
     }
     
-    // Get groups by admin
-    public List<GroupDTO> getGroupsByAdmin(Long userId) {
+    // Get groups by creator
+    public List<GroupDTO> getGroupsByCreator(Long userId) {
         try {
-            User admin;
-            try {
-                admin = userRepo.findById(userId)
-                        .orElseThrow(() -> new RuntimeException("User not found"));
-                return groupRepo.findByAdmin(admin).stream()
-                        .map(this::convertToDTO)
-                        .collect(Collectors.toList());
-            } catch (Exception e) {
-                logger.warn("User {} not found for getGroupsByAdmin, returning empty list", userId);
-                return new ArrayList<>();
-            }
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            return groupRepo.findByCreatedBy(user).stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            logger.error("Error getting groups by admin {}: {}", userId, e.getMessage(), e);
+            logger.error("Error getting groups for creator {}: {}", userId, e.getMessage(), e);
             return new ArrayList<>();
         }
     }
@@ -420,7 +400,7 @@ public class GroupService {
             
             return membershipRepo.existsByGroupAndUser(group, user);
         } catch (Exception e) {
-            logger.error("Error checking if user {} is member of group {}: {}", userId, groupId, e.getMessage(), e);
+            logger.error("Error checking membership for group {} and user {}: {}", groupId, userId, e.getMessage(), e);
             return false;
         }
     }
@@ -431,27 +411,51 @@ public class GroupService {
             Group group = groupRepo.findById(groupId)
                     .orElseThrow(() -> new RuntimeException("Group not found"));
             
-            Optional<GroupMembership> membership = membershipRepo.findByGroupAndUser(
-                    group, 
-                    userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             
+            Optional<GroupMembership> membership = membershipRepo.findByGroupAndUser(group, user);
             return membership.map(GroupMembership::isModerator).orElse(false);
         } catch (Exception e) {
-            logger.error("Error checking if user {} is moderator of group {}: {}", userId, groupId, e.getMessage(), e);
+            logger.error("Error checking moderator status for group {} and user {}: {}", groupId, userId, e.getMessage(), e);
             return false;
         }
     }
     
-    // Check if user is admin
-    public boolean isAdmin(Long groupId, Long userId) {
+    // Check if user is creator
+    public boolean isCreator(Long groupId, Long userId) {
+        try {
+            Group group = groupRepo.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+            User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            return group.isCreator(user);
+        } catch (Exception e) {
+            logger.error("Error checking if user is creator of group", e);
+            return false;
+        }
+    }
+    
+    // Remove member
+    @Transactional
+    public boolean removeMember(Long groupId, Long userId) {
         try {
             Group group = groupRepo.findById(groupId)
                     .orElseThrow(() -> new RuntimeException("Group not found"));
             
-            return group.getAdmin().getId() == userId;
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            // Check if user is a member
+            if (!membershipRepo.existsByGroupAndUser(group, user)) {
+                return false;
+            }
+            
+            membershipRepo.deleteByGroupAndUser(group, user);
+            return true;
         } catch (Exception e) {
-            logger.error("Error checking if user {} is admin of group {}: {}", userId, groupId, e.getMessage(), e);
-            return false;
+            logger.error("Error removing member {} from group {}: {}", userId, groupId, e.getMessage(), e);
+            throw e;
         }
     }
 } 

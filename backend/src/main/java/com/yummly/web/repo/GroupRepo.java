@@ -17,5 +17,6 @@ public interface GroupRepo extends JpaRepository<Group, Long> {
     @Query("SELECT g FROM Group g JOIN g.memberships m WHERE m.user = ?1")
     List<Group> findGroupsByMember(User user);
     
-    List<Group> findByAdmin(User admin);
+    List<Group> findByCreatedBy(User user);
+    List<Group> findByNameContainingOrDescriptionContaining(String name, String description);
 } 
