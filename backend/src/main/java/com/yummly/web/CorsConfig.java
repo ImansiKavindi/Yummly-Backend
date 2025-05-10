@@ -29,7 +29,7 @@ public class CorsConfig {
                         .allowedMethods("GET", "POST", "PUT", "DELETE") // Allow specific methods
                         .allowedHeaders("Authorization", "Content-Type", "X-Requested-With") // Allow specific headers
                         .allowCredentials(true)
-                        .maxAge(3600); // Cache the pre-flight response for 1 hour
+                        .maxAge(3600); 
 
             }
         };
