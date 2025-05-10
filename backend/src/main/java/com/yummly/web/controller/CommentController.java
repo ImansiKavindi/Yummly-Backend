@@ -15,7 +15,7 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    // Add a comment to a post
+   
     @PostMapping
     public CommentDTO addComment(
             @PathVariable Long postId,
