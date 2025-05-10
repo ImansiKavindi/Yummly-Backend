@@ -57,7 +57,7 @@ public class User {
         this.email = email;
     }
 
-    // Getter and Setter methods for password
+    
     public String getPassword() {
         return password;
     }
